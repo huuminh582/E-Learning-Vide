@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary: #990FFA;
+  --secondary: #E60076;
+  --accent: #E5642E;
+  --accent-dark: #BF3800;
+  --cta: #DB5721;
+  --bg: #FFFFFF;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+}
+
+/* ===== Base ===== */
+body {
+  color: var(--text-primary);
+  background: var(--bg);
+  font-family: 'Montserrat', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== Gradient Text (purple → pink backgrounds) ===== */
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===== Accent Text (orange-red highlights) ===== */
+.accent-text {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--cta) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===== Primary Button — orange-red CTA ===== */
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--cta) 100%);
+  color: white;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--accent-dark) 0%, var(--accent) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(229, 100, 46, 0.3);
+}
+
+/* ===== Outline Button — shadcn style ===== */
+.btn-outline {
+  background: transparent;
+  border: 1px solid #E5E7EB;
+  color: var(--text-primary);
+  transition: all 0.15s ease;
+  font-weight: 500;
+}
+
+.btn-outline:hover {
+  background: #F9FAFB;
+  border-color: #D1D5DB;
+}
+
+/* ===== Ghost Button ===== */
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+}
+
+.btn-ghost:hover {
+  background: #F3F4F6;
+  color: var(--text-primary);
+}
+
+/* ===== Card — shadcn style ===== */
+.card {
+  background: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border-color: #D1D5DB;
+}
+
+/* ===== Badge ===== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.badge-accent {
+  background: linear-gradient(135deg, var(--accent), var(--cta));
+  color: white;
+}
+
+.badge-outline {
+  background: transparent;
+  /* border: 1px solid #E5E7EB; */
+  border: 1px solid #E5642E;
+  color: var(--text-secondary);
+}
+
+/* ===== Animations ===== */
+.animate-fade-in-up {
+  animation: fade-in-up 0.7s ease-out forwards;
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Focus visible — accessible ===== */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ===== Nav Dropdown — shadcn style ===== */
+.nav-dropdown-menu {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px) scale(0.98);
+  transform-origin: top;
+  transition: all 0.15s ease-out;
+  pointer-events: none;
+}
+
+.nav-dropdown-wrapper:hover .nav-dropdown-menu,
+.nav-dropdown-wrapper:focus-within .nav-dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Chevron rotation */
+.nav-dropdown-wrapper:hover .nav-dropdown-chevron {
+  transform: rotate(180deg);
+}
