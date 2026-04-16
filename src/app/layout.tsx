@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import StyledComponentsRegistry from '@components/AntdRegistry';
-import Providers from '@components/Providers';
+import StyledComponentsRegistry from '@components/providers/AntdRegistry';
+import Providers from '@components/providers/Providers';
 
 export const metadata: Metadata = {
   title: 'VIDE - Nền Tảng Học Trực Tuyến',

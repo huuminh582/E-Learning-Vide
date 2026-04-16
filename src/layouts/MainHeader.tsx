@@ -1,172 +1,187 @@
-'use client';
+'use client'
 
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
+import React, { useEffect, useState } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { User } from '@supabase/supabase-js'
 
-/* ── Sub‑menu data for "Khóa học" ── */
-const courseCategories = [
+import { supabase } from '@/lib/supabase'
+import DropdownMenuAvatar from '@/components/ui/DropdownMenuAvatar'
+import NavigationMenu from '@/components/ui/NavigationMenuMinimal'
+
+const navigationMenuItems = [
   {
-    section: 'popular',
-    items: [
-      { href: '/courses?cat=web', label: 'Lập trình Web', icon: '🌐' },
-      { href: '/courses?cat=mobile', label: 'Lập trình Mobile', icon: '📱' },
-      { href: '/courses?cat=data', label: 'Khoa học dữ liệu', icon: '📊' },
+    label: 'Trang chủ',
+    href: '/',
+  },
+  {
+    label: 'Khóa học',
+    href: '/courses',
+    content: [
+      {
+        title: 'Lập trình',
+        items: [
+          {
+            title: 'Lập trình Web',
+            href: '/courses?cat=web',
+            description: 'HTML, CSS, JavaScript, React, Next.js',
+          },
+          {
+            title: 'Lập trình Mobile',
+            href: '/courses?cat=mobile',
+            description: 'React Native, Flutter, iOS, Android',
+          },
+          {
+            title: 'DevOps & Cloud',
+            href: '/courses?cat=devops',
+            description: 'Docker, Kubernetes, AWS, Azure, GCP',
+          },
+        ],
+      },
+      {
+        title: 'Khóa học khác',
+        items: [
+          {
+            title: 'Khoa học dữ liệu',
+            href: '/courses?cat=data',
+            description: 'Python, Machine Learning, Data Analysis',
+          },
+          {
+            title: 'Trí tuệ nhân tạo',
+            href: '/courses?cat=ai',
+            description: 'AI, Deep Learning, NLP, Computer Vision',
+          },
+          {
+            title: 'Thiết kế UI/UX',
+            href: '/courses?cat=design',
+            description: 'Figma, Adobe XD, Design System',
+          },
+          {
+            title: 'An ninh mạng',
+            href: '/courses?cat=security',
+            description: 'Cybersecurity, Ethical Hacking',
+          },
+        ],
+      },
     ],
   },
   {
-    section: 'more',
-    items: [
-      { href: '/courses?cat=ai', label: 'Trí tuệ nhân tạo', icon: '🤖' },
-      { href: '/courses?cat=design', label: 'Thiết kế UI/UX', icon: '🎨' },
-      { href: '/courses?cat=devops', label: 'DevOps & Cloud', icon: '☁️' },
-      { href: '/courses?cat=security', label: 'An ninh mạng', icon: '🔒' },
-    ],
+    label: 'Giảng viên',
+    href: '/instructors',
   },
-];
-
-/* ── Simple nav items (no dropdown) ── */
-const simpleNavItems = [
-  { href: '/', label: 'Trang chủ' },
-  { href: '/instructors', label: 'Chứng chỉ' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/contact', label: 'Liên hệ' },
-];
+  {
+    label: 'Blog',
+    href: '/blog',
+  },
+  {
+    label: 'Liên hệ',
+    href: '/contact',
+  },
+]
 
 const MainHeader = () => {
+  const [authUser, setAuthUser] = useState<User | null>(null)
+  const [authReady, setAuthReady] = useState(false)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function bootstrapAuth() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      if (!isMounted) {
+        return
+      }
+
+      setAuthUser(session?.user ?? null)
+      setAuthReady(true)
+    }
+
+    void bootstrapAuth()
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthUser(session?.user ?? null)
+      setAuthReady(true)
+    })
+
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
+    }
+  }, [])
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-xl border-b border-gray-200/60">
+    <header className="sticky top-0 z-50 w-full border-b border-gray-200/60 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto px-4 sm:px-6 lg:px-12">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+        <div className="flex h-20 items-center justify-between">
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center">
               <Image
                 src="/assets/logoVIDE.png"
                 alt="VIDE Logo"
-                width={160}
-                height={56}
-                className="h-14 w-auto object-contain"
+                width={200}
+                height={70}
+                className="h-16 w-auto object-contain"
                 priority
               />
             </Link>
           </div>
 
-          {/* Nav — shadcn: minimal, clean text links */}
-          <nav className="hidden md:flex items-center gap-1">
-            {/* Trang chủ */}
-            <Link
-              href="/"
-              className="relative px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors rounded-md hover:bg-gray-100/80"
-            >
-              Trang chủ
-            </Link>
-
-            {/* ─── Khóa học — with dropdown ─── */}
-            <div className="nav-dropdown-wrapper relative">
-              <Link
-                href="/courses"
-                className="nav-dropdown-trigger relative px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors rounded-md hover:bg-gray-100/80 flex items-center gap-1"
-              >
-                Khóa học
-                {/* Chevron icon */}
-                <svg
-                  className="nav-dropdown-chevron w-3.5 h-3.5 transition-transform duration-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </Link>
-
-              {/* Dropdown panel */}
-              <div className="nav-dropdown-menu absolute left-1/2 -translate-x-1/2 pt-2">
-                <div className="z-50 min-w-[12rem] overflow-hidden rounded-md border border-gray-200 bg-white p-1 text-gray-950 shadow-md">
-                  {courseCategories.map((section, sIdx) => (
-                    <React.Fragment key={section.section}>
-                      {sIdx > 0 && (
-                        <div className="-mx-1 my-1 h-px bg-gray-100" />
-                      )}
-                      {section.items.map((item) => (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className="relative flex cursor-default select-none items-center rounded-sm px-2 py-3 text-sm outline-none transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900"
-                        >
-                          <span className="mr-2 flex h-4 w-4 items-center justify-center text-base">{item.icon}</span>
-                          <span className="font-medium">{item.label}</span>
-                        </Link>
-                      ))}
-                    </React.Fragment>
-                  ))}
-
-                  {/* Footer link */}
-                  <div className="-mx-1 my-1 h-px bg-gray-100" />
-                  <Link
-                    href="/courses"
-                    className="relative flex cursor-default select-none items-center justify-between rounded-sm px-2 py-1.5 text-sm font-medium outline-none transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900"
-                  >
-                    Xem tất cả khóa học
-                    <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            {/* Remaining nav items */}
-            {simpleNavItems.slice(1).map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="relative px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors rounded-md hover:bg-gray-100/80"
-              >
-                {item.label}
-              </Link>
-            ))}
+          <nav className="hidden items-center gap-1 md:flex">
+            <NavigationMenu items={navigationMenuItems} />
           </nav>
 
-          {/* Right actions */}
-          <div className="hidden md:flex items-center gap-3">
-            {/* Cart */}
-            <button
-              className="relative p-2 text-gray-500 hover:text-gray-900 transition-colors rounded-md hover:bg-gray-100"
-              aria-label="Giỏ hàng"
+          <div className="hidden items-center gap-3 md:flex">
+            <Link
+              href="/cart"
+              className="relative rounded-md p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+              aria-label="Gio hang"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                />
               </svg>
-              <span className="absolute -top-0.5 -right-0.5 bg-accent text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                0
-              </span>
-            </button>
+            </Link>
 
-            {/* Separator */}
-            <div className="h-6 w-px bg-gray-200"></div>
+            <div className="h-6 w-px bg-gray-200" />
 
-            {/* Auth */}
-            <button className="btn-ghost text-sm px-3 py-1.5 rounded-md">
-              Đăng nhập
-            </button>
-            <button className="btn-primary text-sm px-4 py-1.5 rounded-md shadow-sm">
-              Đăng ký
-            </button>
+            {authReady ? (
+              authUser ? (
+                <DropdownMenuAvatar user={authUser} />
+              ) : (
+                <>
+                  <Link href="/login" className="btn-ghost rounded-md border border-gray-200 px-3 py-1.5 text-sm transition-colors hover:border-gray-300">
+                    Đăng nhập
+                  </Link>
+                  <Link href="/register" className="btn-primary rounded-md px-4 py-1.5 text-sm shadow-sm">
+                    Đăng ký
+                  </Link>
+                </>
+              )
+            ) : (
+              <div className="h-8 w-24 animate-pulse rounded-md bg-gray-100" />
+            )}
           </div>
 
-          {/* Mobile menu */}
           <div className="md:hidden">
-            <button className="p-2 text-gray-600 hover:text-gray-900 rounded-md hover:bg-gray-100 transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 6h16M4 12h16M4 18h16"></path>
+            <button className="rounded-md p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900">
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
           </div>
         </div>
       </div>
     </header>
-  );
-};
+  )
+}
 
-export default MainHeader;
+export default MainHeader
